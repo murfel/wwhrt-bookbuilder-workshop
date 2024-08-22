@@ -30,7 +30,9 @@ class BookBuilder : public Subscriber {
         double price;
         double size;
         uint64_t id;
+#ifdef BASIC
         Side side;
+#endif
 
         bool operator==(const Order& ord) const { return id == ord.id; }
         bool operator<(const Order& ord) const { return id < ord.id; }

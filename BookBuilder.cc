@@ -73,13 +73,11 @@ void BookBuilder::onAdd(const CryptoAdd& add) {
     if (add.side == Bid) {
         bids[add.symbol].push_back(Order{.price = add.price,
                 .size = add.size,
-                .id = add.orderId,
-                .side = add.side});
+                .id = add.orderId});
     } else {
         offers[add.symbol].push_back(Order{.price = add.price,
                 .size = add.size,
-                .id = add.orderId,
-                .side = add.side});
+                .id = add.orderId});
     }
 #endif
 }
@@ -104,7 +102,6 @@ void BookBuilder::onUpdate(const CryptoUpdate& update) {
             if (it->id == update.orderId) {
                 it->price = update.price;
                 it->size = update.size;
-                it->side = update.side;
                 return;
             }
         }
@@ -114,7 +111,6 @@ void BookBuilder::onUpdate(const CryptoUpdate& update) {
             if (it->id == update.orderId) {
                 it->price = update.price;
                 it->size = update.size;
-                it->side = update.side;
                 return;
             }
         }
