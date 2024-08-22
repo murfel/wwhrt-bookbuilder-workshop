@@ -4,6 +4,8 @@
 #include <array>
 #include <set>
 
+#include <sys/types.h>
+
 // This memory allocator can be used as a template parameter to
 // various C++ stdlib datastructures. We've provided a default
 // implementation below that can be modified if desired.
