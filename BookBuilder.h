@@ -54,11 +54,11 @@ class BookBuilder : public Subscriber {
   private:
     // Change me!
 #ifdef BASIC
-    std::unordered_map<Symbol, std::list<Order, Allocator<Order>>> orders;
+    std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> orders;
 #endif
 #ifdef ASKBIDSPLIT
-    std::unordered_map<Symbol, std::list<Order, Allocator<Order>>> bids;
-    std::unordered_map<Symbol, std::list<Order, Allocator<Order>>> offers;
+    std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> bids;
+    std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> offers;
 #endif
     };
 
