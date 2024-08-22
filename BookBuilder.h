@@ -13,6 +13,7 @@ namespace wwhrt {
 
 //#define BASIC
 #define ASKBIDSPLIT
+#define SWAPREMOVE
 
 // BookBuilder Class
 //

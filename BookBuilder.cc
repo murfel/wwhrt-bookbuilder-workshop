@@ -125,7 +125,12 @@ void BookBuilder::onDelete(const CryptoDelete& delete_) {
     auto& symbolOrders = orders[delete_.symbol];
     for (auto it = symbolOrders.begin(); it != symbolOrders.end(); ++it) {
         if (it->id == delete_.orderId) {
+#ifndef SWAPREMOVE
             symbolOrders.erase(it);
+#else
+            std::swap(*it, symbolOrders.back());
+                symbolOrders.pop_back();
+#endif
             return;
         }
     }
@@ -135,7 +140,12 @@ void BookBuilder::onDelete(const CryptoDelete& delete_) {
         auto& symbolOrders = bids[delete_.symbol];
         for (auto it = symbolOrders.begin(); it != symbolOrders.end(); ++it) {
             if (it->id == delete_.orderId) {
+#ifndef SWAPREMOVE
                 symbolOrders.erase(it);
+#else
+                std::swap(*it, symbolOrders.back());
+                symbolOrders.pop_back();
+#endif
                 return;
             }
         }
@@ -143,7 +153,12 @@ void BookBuilder::onDelete(const CryptoDelete& delete_) {
         auto& symbolOrders = offers[delete_.symbol];
         for (auto it = symbolOrders.begin(); it != symbolOrders.end(); ++it) {
             if (it->id == delete_.orderId) {
+#ifndef SWAPREMOVE
                 symbolOrders.erase(it);
+#else
+                std::swap(*it, symbolOrders.back());
+                symbolOrders.pop_back();
+#endif
                 return;
             }
         }
