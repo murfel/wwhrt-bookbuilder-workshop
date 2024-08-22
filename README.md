@@ -27,7 +27,7 @@ well as the supporting framework to read our sample data.
 
 You can find the naive code in [`BookBuilder.cc`](./BookBuilder.cc).
 
-Your bookbuilder will receive events for individual orders by via callbacks.
+Your bookbuilder will receive events for individual orders via callbacks.
 Your implementation must keep track of all the open orders and be able to
 respond to queries about the current best orders to buy and sell.
 
@@ -41,7 +41,7 @@ information about these events in the [`Events.h`](./Events.h) header.
 
 # Running the Code
 
-We've provided a makefile that shoud make it simple to run the code on a x86_64
+We've provided a makefile that should make it simple to run the code on a x86_64
 Linux environment. You will need a C++17 compiler as well as several packages.
 
 To install the necessary prerequisites on Ubuntu you can run:
