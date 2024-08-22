@@ -2,7 +2,7 @@
 
 This workshop will give you a taste of what it's like to work as a Core
 Developer at HRT. There are many teams at HRT that write code, but the Core team
-works on all of the low-level infrastructure that supports our trading. One
+works on all the low-level infrastructure that supports our trading. One
 aspect of this is writing code that allows us to interface with various
 financial exchanges.
 
@@ -41,7 +41,7 @@ information about these events in the [`Events.h`](./Events.h) header.
 
 # Running the Code
 
-We've provided a makefile that should make it simple to run the code on a x86_64
+We've provided a makefile that should make it simple to run the code on an x86_64
 Linux environment. You will need a C++17 compiler as well as several packages.
 
 To install the necessary prerequisites on Ubuntu you can run:
@@ -59,7 +59,7 @@ Once you're all set up, you can run any of the commands below
 | `make profile_functions` | runs the optimized code and measures which functions are taking the most time  |
 | `make profile_lines` | like `make profile_functions` but instead shows which lines are taking the most time |
 | `make gdb` |  alias to `make gdb_unoptimized` |
-| `make gdb_unoptimized` | runs the unoptimzed code under GDB so you can step through and find bugs |
+| `make gdb_unoptimized` | runs the unoptimized code under GDB so you can step through and find bugs |
 | `make gdb_optimized` | like `make gdb_unoptimzed` except uses the optimized version of your code in case your bug depends on optimizations being enabled |
 
 Parameters

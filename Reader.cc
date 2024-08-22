@@ -89,7 +89,7 @@ void Reader::run() {
             if (std::feof(fp)) {
                 break;
             } else {
-                throw std::runtime_error("Enountered error reading from file");
+                throw std::runtime_error("Encountered error reading from file");
             }
         }
     }
