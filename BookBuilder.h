@@ -11,7 +11,6 @@
 
 namespace wwhrt {
 
-//#define BASIC
 #define ASKBIDSPLIT
 #define SWAPREMOVE
 
@@ -31,7 +30,7 @@ class BookBuilder : public Subscriber {
         double price;
         double size;
         uint64_t id;
-#ifdef BASIC
+#ifndef ASKBIDSPLIT
         Side side;
 #endif
 
@@ -54,10 +53,9 @@ class BookBuilder : public Subscriber {
 
   private:
     // Change me!
-#ifdef BASIC
+#ifndef ASKBIDSPLIT
     std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> orders;
-#endif
-#ifdef ASKBIDSPLIT
+#else
     std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> bids;
     std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> offers;
 #endif
