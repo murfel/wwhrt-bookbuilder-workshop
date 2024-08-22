@@ -11,6 +11,9 @@
 
 namespace wwhrt {
 
+//#define BASIC
+#define ASKBIDSPLIT
+
 // BookBuilder Class
 //
 // This class is responsible for processing events that represent
@@ -48,7 +51,13 @@ class BookBuilder : public Subscriber {
 
   private:
     // Change me!
+#ifdef BASIC
     std::unordered_map<Symbol, std::list<Order, Allocator<Order>>> orders;
-};
+#endif
+#ifdef ASKBIDSPLIT
+    std::unordered_map<Symbol, std::list<Order, Allocator<Order>>> bids;
+    std::unordered_map<Symbol, std::list<Order, Allocator<Order>>> offers;
+#endif
+    };
 
 } // namespace wwhrt
