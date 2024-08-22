@@ -13,7 +13,7 @@
 
 // The main function for our book builder program. Type ./bookbuilder --help
 // to see options. Please see BookBuilder.{h,cc} and Allocator.h for
-// class implementations to be modifed in this workshop.
+// class implementations to be modified in this workshop.
 int main(int argc, char** argv) {
     wwhrt::CommandLine args;
     args.parse(argc, argv);
