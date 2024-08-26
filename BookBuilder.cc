@@ -37,20 +37,22 @@ std::vector<BookBuilder::Order> BookBuilder::getBestOffers(Symbol symbol) {
 void BookBuilder::onAdd(const CryptoAdd& add) {
     auto& orders = add.side == Bid ? bids : offers;
     auto& symbolOrders = orders[add.symbol];
-    symbolOrders.insert({add.price, add.size, add.orderId});
+    auto itAndOk = symbolOrders.emplace(add.price, add.size, add.orderId);
+    orderIdToIterator[add.orderId] = itAndOk.first;
 }
 
 // NB: In the dataset, orders never change sides, I checked.
 void BookBuilder::onUpdate(const CryptoUpdate& update) {
     auto& orders = update.side == Bid ? bids : offers;
     auto& symbolOrders = orders[update.symbol];
-    for (auto it = symbolOrders.begin(); it != symbolOrders.end(); ++it) {
-        if (it->id == update.orderId) {
-            symbolOrders.erase(it);
-            symbolOrders.insert({update.price, update.size, update.orderId});
-            return;
-        }
+
+    auto pairIt = orderIdToIterator.find(update.orderId);
+    if (pairIt == orderIdToIterator.end()) {
+        return;
     }
+    auto it = symbolOrders.emplace_hint(pairIt->second, update.price, update.size, update.orderId);
+    symbolOrders.erase(pairIt->second);
+    pairIt->second = it;
     // assert(false); // Could not find existing order to update!
 }
 
@@ -58,20 +60,12 @@ void BookBuilder::onDelete(const CryptoDelete& delete_) {
     auto& orders = delete_.side == Bid ? bids : offers;
     auto& symbolOrders = orders[delete_.symbol];
 
-    {
-        auto it = symbolOrders.find({delete_.price, delete_.size, delete_.orderId});
-        if (it != symbolOrders.end()) {
-            symbolOrders.erase(it);
-            return;
-        }
+    auto pairIt = orderIdToIterator.find(delete_.orderId);
+    if (pairIt == orderIdToIterator.end()) {
+        return;
     }
-
-    for (auto it = symbolOrders.begin(); it != symbolOrders.end(); ++it) {
-        if (it->id == delete_.orderId) {
-            symbolOrders.erase(it);
-            return;
-        }
-    }
+    symbolOrders.erase(pairIt->second);
+    orderIdToIterator.erase(pairIt);
     // assert(false); // Could not find existing order to delete!
 }
 

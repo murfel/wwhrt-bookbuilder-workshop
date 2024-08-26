@@ -28,6 +28,8 @@ class BookBuilder : public Subscriber {
         double size;
         uint64_t id;
 
+        Order(double price, double size, uint64_t id) : price(price), size(size), id(id) {}
+
         bool operator<(const Order& ord) const {
             if (price != ord.price) {
                 return price < ord.price;
@@ -56,6 +58,8 @@ class BookBuilder : public Subscriber {
     // Change me!
     std::unordered_map<Symbol, std::set<Order>> bids;
     std::unordered_map<Symbol, std::set<Order>> offers;
+
+    std::unordered_map<uint64_t, std::set<Order>::iterator> orderIdToIterator;  // orderId to iterator
 };
 
 } // namespace wwhrt
