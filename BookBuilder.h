@@ -22,7 +22,7 @@ namespace wwhrt {
 //
 // Please modify the below class implementation.
 class BookBuilder : public Subscriber {
-public:
+  public:
     struct Order {
         double price;
         double size;
@@ -40,6 +40,11 @@ public:
             return id < ord.id;
         }
     };
+    struct OrderHasher {
+        size_t operator()(const Order& ord) const {
+            return std::hash<uint64_t>()(ord.id);
+        }
+    };
     BookBuilder() = default;
     std::vector<Order> getBestBids(Symbol symbol);
     std::vector<Order> getBestOffers(Symbol symbol);
@@ -48,7 +53,7 @@ public:
     void onUpdate(const CryptoUpdate& update) final;
     void onDelete(const CryptoDelete& delete_) final;
 
-private:
+  private:
     // Change me!
     std::unordered_map<Symbol, std::set<Order>> bids;
     std::unordered_map<Symbol, std::set<Order>> offers;
