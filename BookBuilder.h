@@ -5,11 +5,25 @@
 #include "Reader.h"
 
 #include <list>
+#include <set>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 namespace wwhrt {
+
+//#define ORDERS_LIST
+//#define ASKBIDSPLIT
+//#define SORTED
+
+#define ORDERS_VECTOR
+#define ASKBIDSPLIT
+//#define SWAPREMOVE  // conflicts with SORTED
+#define SORTED
+
+//#define ORDERS_SET  // must go with ASKBIDSPLIT
+//#define ASKBIDSPLIT
+//#define ATTEMPT_ERASE
 
 // BookBuilder Class
 //
@@ -27,16 +41,25 @@ class BookBuilder : public Subscriber {
         double price;
         double size;
         uint64_t id;
+#ifndef ASKBIDSPLIT
         Side side;
+#endif
 
-        bool operator==(const Order& ord) const { return id == ord.id; }
-        bool operator<(const Order& ord) const { return id < ord.id; }
-    };
-
-    struct OrderHasher {
-        size_t operator()(const Order& ord) const {
-            return std::hash<uint64_t>()(ord.id);
+        bool operator<(const Order& ord) const {
+            if (price != ord.price) {
+                return price < ord.price;
+            }
+            if (size != ord.size) {
+                return size < ord.size;
+            }
+            return id < ord.id;
         }
+
+        struct OrderHasher {
+            size_t operator()(const Order &ord) const {
+                return std::hash<uint64_t>()(ord.id);
+            }
+        };
     };
     BookBuilder() = default;
     std::vector<Order> getBestBids(Symbol symbol);
@@ -48,7 +71,24 @@ class BookBuilder : public Subscriber {
 
   private:
     // Change me!
-    std::unordered_map<Symbol, std::list<Order, Allocator<Order>>> orders;
-};
+#ifdef ORDERS_LIST
+    using OrderContainer = std::list<Order>;
+#elif defined(ORDERS_VECTOR)
+    using OrderContainer = std::vector<Order>;
+#elif defined(ORDERS_SET)
+    using OrderContainer = std::set<Order>;
+#endif
+
+#if defined(SORTED) || defined(ORDERS_SET)
+static void insert(OrderContainer & symbolOrders, double price, double size, uint64_t orderId, Side side);
+#endif
+
+#ifndef ASKBIDSPLIT
+    std::unordered_map<Symbol, OrderContainer> orders;
+#else
+    std::unordered_map<Symbol, OrderContainer> bids;
+    std::unordered_map<Symbol, OrderContainer> offers;
+#endif
+    };
 
 } // namespace wwhrt
