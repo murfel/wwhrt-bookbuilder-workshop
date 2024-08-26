@@ -12,14 +12,14 @@
 
 namespace wwhrt {
 
-#define ORDERS_LIST
-#define ASKBIDSPLIT
-#define SORTED
-
-//#define ORDERS_VECTOR
+//#define ORDERS_LIST
 //#define ASKBIDSPLIT
-//#define SWAPREMOVE  // conflicts with SORTED
 //#define SORTED
+
+#define ORDERS_VECTOR
+#define ASKBIDSPLIT
+//#define SWAPREMOVE  // conflicts with SORTED
+#define SORTED
 
 //#define ORDERS_SET  // must go with ASKBIDSPLIT
 //#define ASKBIDSPLIT
