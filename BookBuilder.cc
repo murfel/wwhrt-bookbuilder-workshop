@@ -14,30 +14,27 @@ std::vector<BookBuilder::Order> BookBuilder::getBestBids(Symbol symbol) {
 #endif
     auto& symbolOrders = orders[symbol];
     std::vector<Order> bestBids;
-
-#if defined(ORDERS_LIST) || defined(ORDERS_VECTOR)
-    for (const Order& order : symbolOrders) {
+    for (auto it = symbolOrders.rbegin(); it != symbolOrders.rend(); it++) {
 #ifndef ASKBIDSPLIT
-        if (order.side != Bid) {
+        if (it->side != Bid) {
             continue;
         }
 #endif
-        if (bestBids.empty() || order.price > bestBids[0].price) {
+#if (defined(ORDERS_LIST) || defined(ORDERS_VECTOR)) && !defined(SORTED)
+        if (bestBids.empty() || it->price > bestBids[0].price) {
             bestBids.clear();
-            bestBids.push_back(order);
-        } else if (bestBids[0].price == order.price) {
-            bestBids.push_back(order);
+            bestBids.push_back(*it);
+        } else if (bestBids[0].price == it->price) {
+            bestBids.push_back(*it);
         }
-    }
-#elif defined(ORDERS_SET)
-    for (auto it = symbolOrders.rbegin(); it != symbolOrders.rend(); it++) {
+#else  // defined(SORTED) || defined(ORDERS_SET)
         if (bestBids.empty() || it->price == bestBids.front().price) {
             bestBids.push_back(*it);
         } else {
             break;
         }
-    }
 #endif
+    }
     return bestBids;
 }
 
@@ -53,14 +50,14 @@ std::vector<BookBuilder::Order> BookBuilder::getBestOffers(Symbol symbol) {
             continue;
         }
 #endif
-#if defined(ORDERS_LIST) || defined(ORDERS_VECTOR)
+#if (defined(ORDERS_LIST) || defined(ORDERS_VECTOR)) && !defined(sorted)
         if (bestOffers.empty() || order.price < bestOffers[0].price) {
             bestOffers.clear();
             bestOffers.push_back(order);
         } else if (bestOffers[0].price == order.price) {
             bestOffers.push_back(order);
         }
-#elif defined(ORDERS_SET)
+#else // defined(SORTED) || defined(ORDERS_SET)
         if (bestOffers.empty() || order.price == bestOffers.front().price) {
             bestOffers.push_back(order);
         } else {
@@ -71,12 +68,36 @@ std::vector<BookBuilder::Order> BookBuilder::getBestOffers(Symbol symbol) {
     return bestOffers;
 }
 
+#if defined(SORTED) || defined(ORDERS_SET)
+void BookBuilder::insert(OrderContainer & symbolOrders, double price, double size, uint64_t orderId, Side side) {
+#ifndef ASKBIDSPLIT
+    Order order{price, size, orderId, side};
+#else
+    (void)side;
+    Order order{price, size, orderId};
+#endif
+#if defined(ORDERS_LIST)
+    // Find first >= order.
+    auto it = symbolOrders.begin();
+    while (it != symbolOrders.end() && *it < order) {
+        it++;
+    }
+    symbolOrders.insert(it, order);
+#elif defined(ORDERS_VECTOR)
+    auto it = std::lower_bound(symbolOrders.begin(), symbolOrders.end(), order);
+    symbolOrders.insert(it, order);
+#elif defined(ORDERS_SET)
+    symbolOrders.insert(order);
+#endif
+}
+#endif
+
 void BookBuilder::onAdd(const CryptoAdd& add) {
 #ifdef ASKBIDSPLIT
     auto& orders = add.side == Bid ? bids : offers;
 #endif
     auto& symbolOrders = orders[add.symbol];
-#if defined(ORDERS_LIST) || defined(ORDERS_VECTOR)
+#if (defined(ORDERS_LIST) || defined(ORDERS_VECTOR)) && !defined(SORTED)
     symbolOrders.push_back(Order{.price = add.price,
                                  .size = add.size,
                                  .id = add.orderId,
@@ -84,8 +105,8 @@ void BookBuilder::onAdd(const CryptoAdd& add) {
                                  .side = add.side
 #endif
                             });
-#elif defined(ORDERS_SET)
-    symbolOrders.insert({add.price, add.size, add.orderId});
+#else
+    insert(symbolOrders, add.price, add.size, add.orderId, add.side);
 #endif
 }
 
@@ -98,16 +119,13 @@ void BookBuilder::onUpdate(const CryptoUpdate& update) {
 
     for (auto it = symbolOrders.begin(); it != symbolOrders.end(); ++it) {
         if (it->id == update.orderId) {
-#if defined(ORDERS_LIST) || defined(ORDERS_VECTOR)
+#if (defined(ORDERS_LIST) || defined(ORDERS_VECTOR)) && !defined(SORTED)
             it->price = update.price;
             it->size = update.size;
-#ifndef ASKBIDSPLIT
-            assert(it->side == update.side);
-            it->side = update.side;
-#endif
-#elif defined(ORDERS_SET)
+#else
+            // TODO: Hinted insert, since the price is likely changed only a little.
             symbolOrders.erase(it);
-            symbolOrders.insert({update.price, update.size, update.orderId});
+            insert(symbolOrders, update.price, update.size, update.orderId, update.side);
 #endif
             return;
         }

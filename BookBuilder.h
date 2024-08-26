@@ -12,15 +12,18 @@
 
 namespace wwhrt {
 
+#define ORDERS_LIST
 #define ASKBIDSPLIT
-
-//#define ORDERS_LIST
+#define SORTED
 
 //#define ORDERS_VECTOR
-//#define SWAPREMOVE
+//#define ASKBIDSPLIT
+//#define SWAPREMOVE  // conflicts with SORTED
+//#define SORTED
 
-#define ORDERS_SET  // must go with ASKBIDSPLIT
-#define ATTEMPT_ERASE
+//#define ORDERS_SET  // must go with ASKBIDSPLIT
+//#define ASKBIDSPLIT
+//#define ATTEMPT_ERASE
 
 // BookBuilder Class
 //
@@ -42,10 +45,6 @@ class BookBuilder : public Subscriber {
         Side side;
 #endif
 
-#if defined(ORDERS_LIST) || defined(ORDERS_VECTOR)
-        bool operator==(const Order& ord) const { return id == ord.id; }
-        bool operator<(const Order& ord) const { return id < ord.id; }
-#elif defined(ORDERS_SET)
         bool operator<(const Order& ord) const {
             if (price != ord.price) {
                 return price < ord.price;
@@ -55,7 +54,6 @@ class BookBuilder : public Subscriber {
             }
             return id < ord.id;
         }
-#endif
 
         struct OrderHasher {
             size_t operator()(const Order &ord) const {
@@ -80,6 +78,8 @@ class BookBuilder : public Subscriber {
 #elif defined(ORDERS_SET)
     using OrderContainer = std::set<Order>;
 #endif
+
+static void insert(OrderContainer & symbolOrders, double price, double size, uint64_t orderId, Side side);
 
 #ifndef ASKBIDSPLIT
     std::unordered_map<Symbol, OrderContainer> orders;
