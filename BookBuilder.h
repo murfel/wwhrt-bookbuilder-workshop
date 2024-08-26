@@ -79,7 +79,9 @@ class BookBuilder : public Subscriber {
     using OrderContainer = std::set<Order>;
 #endif
 
+#if defined(SORTED) || defined(ORDERS_SET)
 static void insert(OrderContainer & symbolOrders, double price, double size, uint64_t orderId, Side side);
+#endif
 
 #ifndef ASKBIDSPLIT
     std::unordered_map<Symbol, OrderContainer> orders;
