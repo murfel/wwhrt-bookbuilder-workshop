@@ -21,37 +21,37 @@ namespace wwhrt {
 // Best Offer (side=Ask, lowest price), also known as the BBO.
 //
 // Please modify the below class implementation.
-    class BookBuilder : public Subscriber {
-    public:
-        struct Order {
-            double price;
-            double size;
-            uint64_t id;
+class BookBuilder : public Subscriber {
+public:
+    struct Order {
+        double price;
+        double size;
+        uint64_t id;
 
-            Order(double price, double size, uint64_t id) : price(price), size(size), id(id) {}
+        Order(double price, double size, uint64_t id) : price(price), size(size), id(id) {}
 
-            bool operator<(const Order& ord) const {
-                if (price != ord.price) {
-                    return price < ord.price;
-                }
-                if (size != ord.size) {
-                    return size < ord.size;
-                }
-                return id < ord.id;
+        bool operator<(const Order& ord) const {
+            if (price != ord.price) {
+                return price < ord.price;
             }
-        };
-        BookBuilder() = default;
-        std::vector<Order> getBestBids(Symbol symbol);
-        std::vector<Order> getBestOffers(Symbol symbol);
-
-        void onAdd(const CryptoAdd& add) final;
-        void onUpdate(const CryptoUpdate& update) final;
-        void onDelete(const CryptoDelete& delete_) final;
-
-    private:
-        // Change me!
-        std::unordered_map<Symbol, std::set<Order>> bids;
-        std::unordered_map<Symbol, std::set<Order>> offers;
+            if (size != ord.size) {
+                return size < ord.size;
+            }
+            return id < ord.id;
+        }
     };
+    BookBuilder() = default;
+    std::vector<Order> getBestBids(Symbol symbol);
+    std::vector<Order> getBestOffers(Symbol symbol);
+
+    void onAdd(const CryptoAdd& add) final;
+    void onUpdate(const CryptoUpdate& update) final;
+    void onDelete(const CryptoDelete& delete_) final;
+
+private:
+    // Change me!
+    std::unordered_map<Symbol, std::set<Order>> bids;
+    std::unordered_map<Symbol, std::set<Order>> offers;
+};
 
 } // namespace wwhrt

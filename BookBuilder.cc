@@ -51,6 +51,7 @@ void BookBuilder::onUpdate(const CryptoUpdate& update) {
             return;
         }
     }
+    // assert(false); // Could not find existing order to update!
 }
 
 void BookBuilder::onDelete(const CryptoDelete& delete_) {
@@ -65,12 +66,13 @@ void BookBuilder::onDelete(const CryptoDelete& delete_) {
         }
     }
 
-    for (auto it = symbolOrders.begin(); it != symbolOrders.end(); it++) {
+    for (auto it = symbolOrders.begin(); it != symbolOrders.end(); ++it) {
         if (it->id == delete_.orderId) {
             symbolOrders.erase(it);
             return;
         }
     }
+    // assert(false); // Could not find existing order to delete!
 }
 
 } // namespace wwhrt
