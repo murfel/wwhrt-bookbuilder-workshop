@@ -5,6 +5,7 @@
 #include "Reader.h"
 
 #include <list>
+#include <set>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -12,7 +13,14 @@
 namespace wwhrt {
 
 #define ASKBIDSPLIT
-#define SWAPREMOVE
+
+//#define ORDERS_LIST
+
+//#define ORDERS_VECTOR
+//#define SWAPREMOVE
+
+#define ORDERS_SET  // must go with ASKBIDSPLIT
+#define ATTEMPT_ERASE
 
 // BookBuilder Class
 //
@@ -34,14 +42,26 @@ class BookBuilder : public Subscriber {
         Side side;
 #endif
 
+#if defined(ORDERS_LIST) || defined(ORDERS_VECTOR)
         bool operator==(const Order& ord) const { return id == ord.id; }
         bool operator<(const Order& ord) const { return id < ord.id; }
-    };
-
-    struct OrderHasher {
-        size_t operator()(const Order& ord) const {
-            return std::hash<uint64_t>()(ord.id);
+#elif defined(ORDERS_SET)
+        bool operator<(const Order& ord) const {
+            if (price != ord.price) {
+                return price < ord.price;
+            }
+            if (size != ord.size) {
+                return size < ord.size;
+            }
+            return id < ord.id;
         }
+#endif
+
+        struct OrderHasher {
+            size_t operator()(const Order &ord) const {
+                return std::hash<uint64_t>()(ord.id);
+            }
+        };
     };
     BookBuilder() = default;
     std::vector<Order> getBestBids(Symbol symbol);
@@ -53,11 +73,19 @@ class BookBuilder : public Subscriber {
 
   private:
     // Change me!
+#ifdef ORDERS_LIST
+    using OrderContainer = std::list<Order>;
+#elif defined(ORDERS_VECTOR)
+    using OrderContainer = std::vector<Order>;
+#elif defined(ORDERS_SET)
+    using OrderContainer = std::set<Order>;
+#endif
+
 #ifndef ASKBIDSPLIT
-    std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> orders;
+    std::unordered_map<Symbol, OrderContainer> orders;
 #else
-    std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> bids;
-    std::unordered_map<Symbol, std::vector<Order, Allocator<Order>>> offers;
+    std::unordered_map<Symbol, OrderContainer> bids;
+    std::unordered_map<Symbol, OrderContainer> offers;
 #endif
     };
 
