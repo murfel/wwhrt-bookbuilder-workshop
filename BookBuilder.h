@@ -38,6 +38,7 @@ class BookBuilder : public Subscriber {
             return id < ord.id;
         }
     };
+
     struct OrderHasher {
         size_t operator()(const Order& ord) const {
             return std::hash<uint64_t>()(ord.id);
