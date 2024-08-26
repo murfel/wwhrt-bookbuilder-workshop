@@ -28,8 +28,6 @@ class BookBuilder : public Subscriber {
         double size;
         uint64_t id;
 
-        Order(double price, double size, uint64_t id) : price(price), size(size), id(id) {}
-
         bool operator<(const Order& ord) const {
             if (price != ord.price) {
                 return price < ord.price;
