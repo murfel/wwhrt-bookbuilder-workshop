@@ -27,10 +27,18 @@ class BookBuilder : public Subscriber {
         double price;
         double size;
         uint64_t id;
-        Side side;
 
-        bool operator==(const Order& ord) const { return id == ord.id; }
-        bool operator<(const Order& ord) const { return id < ord.id; }
+        Order(double price, double size, uint64_t id) : price(price), size(size), id(id) {}
+
+        bool operator<(const Order& ord) const {
+            if (price != ord.price) {
+                return price < ord.price;
+            }
+            if (size != ord.size) {
+                return size < ord.size;
+            }
+            return id < ord.id;
+        }
     };
 
     struct OrderHasher {
@@ -48,7 +56,10 @@ class BookBuilder : public Subscriber {
 
   private:
     // Change me!
-    std::unordered_map<Symbol, std::list<Order, Allocator<Order>>> orders;
+    std::unordered_map<Symbol, std::set<Order>> bids;
+    std::unordered_map<Symbol, std::set<Order>> offers;
+
+    std::unordered_map<uint64_t, std::set<Order>::iterator> orderIdToIterator;  // orderId to iterator
 };
 
 } // namespace wwhrt
